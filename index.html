@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billar Carambola - Sistema de Gestión</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #121212;
+            --secondary: #E74C3C;
+            --accent: #F1C40F;
+            --light: #ECF0F1;
+            --dark: #121212;
+            --gray: #7F8C8D;
+            --success: #27AE60;
+            --info: #3498DB;
+            --warning: #F39C12;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                grid-template-columns: 1fr 2fr;
+            }
+        }
+        
+        header {
+            background-color: var(--dark);
+            color: var(--light);
+            padding: 2rem;
+            text-align: center;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+        
+        h1, h2, h3 {
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            text-shadow: 2px 2px var(--accent);
+        }
+
+        h2 {
+            border-bottom: 2px solid var(--gray);
+            padding-bottom: 0.5rem;
+        }
+        
+        section {
+            background-color: var(--light);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .card {
+            background-color: #fff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background-color: #c0392b;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+        }
+        
+        .icono-accion {
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        
+        .tacadas-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        @media (min-width: 768px) {
+            .tacadas-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        .tacadas-jugador {
+            background-color: #f9f9f9;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .profile-stat-box {
+            text-align: center;
+            padding: 1rem;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .nivel-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .nivel-principiante {
+            background-color: #3498DB;
+            color: white;
+        }
+        
+        .nivel-intermedio {
+            background-color: #F1C40F;
+            color: black;
+        }
+        
+        .nivel-avanzado {
+            background-color: #E74C3C;
+            color: white;
+        }
+        
+        .nivel-maestro {
+            background-color: #9B59B6;
+            color: white;
+        }
+        
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid var(--secondary);
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .status-message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .status-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .elo-rating {
+            font-weight: bold;
+            color: #27ae60;
+        }
+        
+        .head-to-head-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .head-to-head-stat {
+            text-align: center;
+            padding: 1rem;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .head-to-head-history {
+            margin-top: 1rem;
+        }
+        
+        .elo-progress {
+            height: 10px;
+            background-color: #eee;
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .elo-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3498DB, #F1C40F, #E74C3C, #9B59B6);
+        }
+        
+        .elo-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-billiards"></i> Billar Carambola</h1>
+        <p>Sistema de gestión de jugadores y partidas con ELO</p>
+    </header>
+
+    <div class="container">
+        <section class="left-panel">
+            <h2>Gestión de Jugadores</h2>
+
+            <!-- Formulario para agregar jugador -->
+            <div class="card">
+                <h3>Añadir Nuevo Jugador</h3>
+                <form id="formJugador">
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" required>
+                    <label for="apellido">Apellido:</label>
+                    <input type="text" id="apellido" required>
+                    <button type="submit" class="btn-primary"><i class="fas fa-plus-circle"></i> Añadir Jugador</button>
+                </form>
+                <div id="jugador-status" class="status-message" style="display: none;"></div>
+            </div>
+            
+            <!-- Listado de jugadores -->
+            <div class="card">
+                <h3>Listado de Jugadores</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nombre</th>
+                                <th>ELO</th>
+                                <th>Nivel</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaJugadores">
+                            <tr><td colspan="5" id="cargando-jugadores"><div class="loader"></div> Cargando jugadores...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Registro de Partida -->
+            <div class="card">
+                <h3>Registro de Partida</h3>
+                <form id="formPartida">
+                    <label for="jugador1">Jugador 1:</label>
+                    <select id="jugador1" required>
+                        <option value="">Cargando jugadores...</option>
+                    </select>
+
+                    <label for="jugador2">Jugador 2:</label>
+                    <select id="jugador2" required>
+                        <option value="">Cargando jugadores...</option>
+                    </select>
+
+                    <!-- Campo único para tacadas -->
+                    <label for="tacadas">Tacadas (común para ambos jugadores):</label>
+                    <input type="number" id="tacadas" min="1" required>
+                    
+                    <!-- Sección de carambolas para Jugador 1 -->
+                    <div class="tacadas-container">
+                        <div class="tacadas-jugador">
+                            <label for="carambolas1">Carambolas Jugador 1:</label>
+                            <input type="number" id="carambolas1" min="0" required>
+                            
+                            <label for="tacadaMax1">Tacada Máxima Jugador 1:</label>
+                            <input type="number" id="tacadaMax1" min="0" required>
+                        </div>
+                        
+                        <!-- Sección de carambolas para Jugador 2 -->
+                        <div class="tacadas-jugador">
+                            <label for="carambolas2">Carambolas Jugador 2:</label>
+                            <input type="number" id="carambolas2" min="0" required>
+                            
+                            <label for="tacadaMax2">Tacada Máxima Jugador 2:</label>
+                            <input type="number" id="tacadaMax2" min="0" required>
+                        </div>
+                    </div>
+
+                    <label for="fechaPartida">Fecha:</label>
+                    <input type="date" id="fechaPartida" required>
+                    
+                    <button type="submit" class="btn-primary"><i class="fas fa-edit"></i> Registrar Partida</button>
+                </form>
+                <div id="partida-status" class="status-message" style="display: none;"></div>
+            </div>
+        </section>
+
+        <section class="right-panel">
+            <!-- Head to Head: Comparación de jugadores -->
+            <div class="card">
+                <h2>Head to Head</h2>
+                <label for="h2hJugador1">Jugador 1:</label>
+                <select id="h2hJugador1">
+                    <option value="">Seleccionar jugador...</option>
+                </select>
+                
+                <label for="h2hJugador2">Jugador 2:</label>
+                <select id="h2hJugador2">
+                    <option value="">Seleccionar jugador...</option>
+                </select>
+                
+                <div id="h2hResult" style="display: none;">
+                    <div class="head-to-head-container">
+                        <div class="head-to-head-stat">
+                            <h4 id="h2hJugador1Nombre">-</h4>
+                            <p>Victorias: <span id="h2hJugador1Victorias">0</span></p>
+                            <p>ELO: <span id="h2hJugador1ELO">1500</span></p>
+                            <p>Nivel: <span id="h2hJugador1Nivel">Principiante</span></p>
+                        </div>
+                        <div class="head-to-head-stat">
+                            <h4>VS</h4>
+                            <p>Partidas: <span id="h2hTotalPartidas">0</span></p>
+                            <p>Diferencia ELO: <span id="h2hDiferenciaELO">0</span></p>
+                        </div>
+                        <div class="head-to-head-stat">
+                            <h4 id="h2hJugador2Nombre">-</h4>
+                            <p>Victorias: <span id="h2hJugador2Victorias">0</span></p>
+                            <p>ELO: <span id="h2hJugador2ELO">1500</span></p>
+                            <p>Nivel: <span id="h2hJugador2Nivel">Principiante</span></p>
+                        </div>
+                    </div>
+                    
+                    <h3>Historial de Enfrentamientos</h3>
+                    <div class="table-responsive head-to-head-history">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Ganador</th>
+                                    <th>Carambolas</th>
+                                    <th>ELO Cambio</th>
+                                </tr>
+                            </thead>
+                            <tbody id="h2hHistorial">
+                                <tr><td colspan="4">Selecciona dos jugadores para ver su historial</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Estadísticas generales -->
+            <div class="card">
+                <h2>Estadísticas Generales</h2>
+                <div class="chart-container">
+                    <canvas id="promedioChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Tabla Top Jugadores -->
+            <div class="card">
+                <h2>Top Jugadores</h2>
+                <div class="table-responsive">
+                    <table id="tablaTopJugadores">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nombre</th>
+                                <th>Partidas Ganadas</th>
+                                <th>Partidas Perdidas</th>
+                                <th>Promedio</th>
+                                <th>ELO</th>
+                                <th>Nivel</th>
+                                <th>Mejor Tacada</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaTop">
+                            <tr><td colspan="8"><div class="loader"></div> Cargando estadísticas...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sección de Perfil de Jugador -->
+            <div class="card">
+                <h2>Perfil del Jugador</h2>
+                <label for="selectJugadorPerfil">Seleccionar Jugador:</label>
+                <select id="selectJugadorPerfil">
+                    <option value="">Cargando jugadores...</option>
+                </select>
+
+                <div id="perfilJugadorContainer" class="profile-container" style="display: none;">
+                    <div class="profile-header">
+                        <h3 id="perfil-nombre"></h3>
+                        <span id="perfil-nivel" class="nivel-badge"></span>
+                        <span class="elo-rating" id="perfil-elo">ELO: 1500</span>
+                    </div>
+                    
+                    <!-- Barra de progreso de ELO -->
+                    <div class="elo-progress">
+                        <div class="elo-progress-bar" id="elo-progress-bar" style="width: 0%"></div>
+                    </div>
+                    <div class="elo-info">
+                        <span>1000</span>
+                        <span>1200</span>
+                        <span>1400</span>
+                        <span>1600</span>
+                        <span>1800</span>
+                        <span>2000+</span>
+                    </div>
+                    
+                    <div class="profile-stats">
+                        <div class="profile-stat-box">
+                            <h4 id="perfil-ganadas">0</h4>
+                            <p>Partidas Ganadas</p>
+                        </div>
+                        <div class="profile-stat-box">
+                            <h4 id="perfil-promedio">0.00</h4>
+                            <p>Promedio</p>
+                        </div>
+                        <div class="profile-stat-box">
+                            <h4 id="perfil-mejor-tacada">0</h4>
+                            <p>Mejor Tacada</p>
+                        </div>
+                    </div>
+
+                    <h3>Historial de Partidas</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Oponente</th>
+                                    <th>Resultado</th>
+                                    <th>Score</th>
+                                    <th>Tacadas</th>
+                                    <th>Máxima</th>
+                                    <th>ELO Cambio</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaHistorialPartidas">
+                                <tr><td colspan="7">Selecciona un jugador para ver su historial</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // URL base de la API (ajusta según tu configuración)
+        const API_BASE = 'http://localhost/billar-carambola/api/';
+        
+        // Variables globales
+        let jugadores = [];
+        let partidas = [];
+        let chartInstance;
+
+        // Referencias a elementos del DOM
+        const formJugador = document.getElementById('formJugador');
+        const formPartida = document.getElementById('formPartida');
+        const listaJugadores = document.getElementById('listaJugadores');
+        const tablaTop = document.getElementById('tablaTop');
+        const jugador1Select = document.getElementById('jugador1');
+        const jugador2Select = document.getElementById('jugador2');
+        const selectJugadorPerfil = document.getElementById('selectJugadorPerfil');
+        const perfilJugadorContainer = document.getElementById('perfilJugadorContainer');
+        const tablaHistorialPartidas = document.getElementById('tablaHistorialPartidas');
+        const jugadorStatus = document.getElementById('jugador-status');
+        const partidaStatus = document.getElementById('partida-status');
+        
+        // Elementos para Head to Head
+        const h2hJugador1Select = document.getElementById('h2hJugador1');
+        const h2hJugador2Select = document.getElementById('h2hJugador2');
+        const h2hResult = document.getElementById('h2hResult');
+        const h2hHistorial = document.getElementById('h2hHistorial');
+
+        // Funciones para interactuar con la API
+        async function apiCall(endpoint, method = 'GET', data = null) {
+            const options = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+            
+            if (data) {
+                options.body = JSON.stringify(data);
+            }
+            
+            try {
+                const response = await fetch(API_BASE + endpoint, options);
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || 'Error en la solicitud');
+                }
+                
+                return result;
+            } catch (error) {
+                console.error('Error en la API:', error);
+                throw error;
+            }
+        }
+
+        // Función para determinar el nivel basado en ELO
+        function determinarNivel(elo) {
+            if (elo >= 1800) return {nivel: 'maestro', texto: 'Maestro'};
+            if (elo >= 1600) return {nivel: 'avanzado', texto: 'Avanzado'};
+            if (elo >= 1400) return {nivel: 'intermedio', texto: 'Intermedio'};
+            return {nivel: 'principiante', texto: 'Principiante'};
+        }
+
+        // Función para calcular el porcentaje de progreso de ELO
+        function calcularProgresoELO(elo) {
+            // ELO mínimo: 1000, máximo: 2000+
+            const minELO = 1000;
+            const maxELO = 2000;
+            
+            if (elo <= minELO) return 0;
+            if (elo >= maxELO) return 100;
+            
+            return ((elo - minELO) / (maxELO - minELO)) * 100;
+        }
+
+        // Cargar datos al iniciar la página
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Cargar jugadores
+                jugadores = await apiCall('jugadores.php');
+                cargarJugadores();
+                cargarSelectJugadores();
+                cargarH2HSelects();
+                
+                // Cargar estadísticas
+                await cargarEstadisticas();
+                
+                // Configurar el input de fecha con la fecha actual
+                const fechaPartidaInput = document.getElementById('fechaPartida');
+                const today = new Date().toISOString().split('T')[0];
+                fechaPartidaInput.value = today;
+            } catch (error) {
+                console.error('Error al cargar datos iniciales:', error);
+                listaJugadores.innerHTML = '<tr><td colspan="5" class="status-error">Error al cargar los datos</td></tr>';
+            }
+        });
+
+        // Función para añadir jugador
+        formJugador.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nombre = document.getElementById('nombre').value;
+            const apellido = document.getElementById('apellido').value;
+            
+            if (nombre.trim() === '' || apellido.trim() === '') {
+                mostrarMensaje(jugadorStatus, 'Por favor, ingrese un nombre y apellido válidos.', 'error');
+                return;
+            }
+
+            try {
+                const nuevoJugador = await apiCall('jugadores.php', 'POST', {
+                    nombre: nombre,
+                    apellido: apellido
+                });
+                
+                jugadores.push(nuevoJugador);
+                mostrarMensaje(jugadorStatus, `Jugador ${nombre} ${apellido} añadido correctamente.`, 'success');
+                
+                formJugador.reset();
+                cargarJugadores();
+                cargarSelectJugadores();
+                cargarH2HSelects();
+                
+                // Recargar estadísticas
+                await cargarEstadisticas();
+            } catch (error) {
+                mostrarMensaje(jugadorStatus, 'Error al añadir jugador: ' + error.message, 'error');
+            }
+        });
+
+        // Función para cargar la lista de jugadores en la tabla de gestión
+        function cargarJugadores() {
+            listaJugadores.innerHTML = '';
+            
+            if (jugadores.length === 0) {
+                listaJugadores.innerHTML = '<tr><td colspan="5">No hay jugadores registrados</td></tr>';
+                return;
+            }
+            
+            jugadores.forEach(jugador => {
+                const tr = document.createElement('tr');
+                const nivel = determinarNivel(jugador.elo || 1500);
+                
+                tr.innerHTML = `
+                    <td>${jugador.id}</td>
+                    <td>${jugador.nombre} ${jugador.apellido}</td>
+                    <td class="elo-rating">${jugador.elo || 1500}</td>
+                    <td><span class="nivel-badge nivel-${nivel.nivel}">${nivel.texto}</span></td>
+                    <td>
+                        <i class="fas fa-pen icono-accion" title="Editar" onclick="editarJugador(${jugador.id})"></i>
+                        <i class="fas fa-trash icono-accion" title="Eliminar" onclick="eliminarJugador(${jugador.id})"></i>
+                    </td>
+                `;
+                listaJugadores.appendChild(tr);
+            });
+        }
+
+        // Función para cargar los jugadores en los selects de partida y perfil
+        function cargarSelectJugadores() {
+            jugador1Select.innerHTML = '<option value="">Seleccionar</option>';
+            jugador2Select.innerHTML = '<option value="">Seleccionar</option>';
+            selectJugadorPerfil.innerHTML = '<option value="">Seleccionar Jugador</option>';
+
+            jugadores.forEach(jugador => {
+                const option1 = document.createElement('option');
+                option1.value = jugador.id;
+                option1.textContent = `${jugador.nombre} ${jugador.apellido}`;
+                jugador1Select.appendChild(option1);
+
+                const option2 = document.createElement('option');
+                option2.value = jugador.id;
+                option2.textContent = `${jugador.nombre} ${jugador.apellido}`;
+                jugador2Select.appendChild(option2);
+
+                const optionPerfil = document.createElement('option');
+                optionPerfil.value = jugador.id;
+                optionPerfil.textContent = `${jugador.nombre} ${jugador.apellido}`;
+                selectJugadorPerfil.appendChild(optionPerfil);
+            });
+        }
+
+        // Función para cargar los selects del Head to Head
+        function cargarH2HSelects() {
+            h2hJugador1Select.innerHTML = '<option value="">Seleccionar jugador...</option>';
+            h2hJugador2Select.innerHTML = '<option value="">Seleccionar jugador...</option>';
+
+            jugadores.forEach(jugador => {
+                const option1 = document.createElement('option');
+                option1.value = jugador.id;
+                option1.textContent = `${jugador.nombre} ${jugador.apellido}`;
+                h2hJugador1Select.appendChild(option1);
+
+                const option2 = document.createElement('option');
+                option2.value = jugador.id;
+                option2.textContent = `${jugador.nombre} ${jugador.apellido}`;
+                h2hJugador2Select.appendChild(option2);
+            });
+            
+            // Event listeners para los selects
+            h2hJugador1Select.addEventListener('change', cargarHeadToHead);
+            h2hJugador2Select.addEventListener('change', cargarHeadToHead);
+        }
+
+        // Función para cargar los datos del Head to Head
+        async function cargarHeadToHead() {
+            const jugador1Id = h2hJugador1Select.value;
+            const jugador2Id = h2hJugador2Select.value;
+            
+            if (!jugador1Id || !jugador2Id) {
+                h2hResult.style.display = 'none';
+                return;
+            }
+            
+            try {
+                const h2hData = await apiCall(`headtohead.php?jugador1=${jugador1Id}&jugador2=${jugador2Id}`);
+                
+                // Determinar niveles
+                const nivelJugador1 = determinarNivel(h2hData.jugador1.elo);
+                const nivelJugador2 = determinarNivel(h2hData.jugador2.elo);
+                
+                // Mostrar los datos
+                document.getElementById('h2hJugador1Nombre').textContent = h2hData.jugador1.nombre;
+                document.getElementById('h2hJugador1Victorias').textContent = h2hData.jugador1.victorias;
+                document.getElementById('h2hJugador1ELO').textContent = h2hData.jugador1.elo;
+                document.getElementById('h2hJugador1Nivel').textContent = nivelJugador1.texto;
+                document.getElementById('h2hJugador1Nivel').className = `nivel-badge nivel-${nivelJugador1.nivel}`;
+                
+                document.getElementById('h2hJugador2Nombre').textContent = h2hData.jugador2.nombre;
+                document.getElementById('h2hJugador2Victorias').textContent = h2hData.jugador2.victorias;
+                document.getElementById('h2hJugador2ELO').textContent = h2hData.jugador2.elo;
+                document.getElementById('h2hJugador2Nivel').textContent = nivelJugador2.texto;
+                document.getElementById('h2hJugador2Nivel').className = `nivel-badge nivel-${nivelJugador2.nivel}`;
+                
+                document.getElementById('h2hTotalPartidas').textContent = h2hData.totalPartidas;
+                document.getElementById('h2hDiferenciaELO').textContent = Math.abs(h2hData.jugador1.elo - h2hData.jugador2.elo);
+                
+                // Llenar historial
+                h2hHistorial.innerHTML = '';
+                if (h2hData.historial.length === 0) {
+                    h2hHistorial.innerHTML = '<tr><td colspan="4">No hay partidas registradas entre estos jugadores</td></tr>';
+                } else {
+                    h2hData.historial.forEach(partida => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${partida.fecha}</td>
+                            <td>${partida.ganador}</td>
+                            <td>${partida.carambolas_jugador1} - ${partida.carambolas_jugador2}</td>
+                            <td>${partida.cambio_elo > 0 ? '+' : ''}${partida.cambio_elo}</td>
+                        `;
+                        h2hHistorial.appendChild(tr);
+                    });
+                }
+                
+                h2hResult.style.display = 'block';
+            } catch (error) {
+                console.error('Error al cargar head to head:', error);
+                h2hHistorial.innerHTML = '<tr><td colspan="4" class="status-error">Error al cargar el historial</td></tr>';
+            }
+        }
+
+        // Manejador del formulario de partida
+        formPartida.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const idJugador1 = jugador1Select.value;
+            const idJugador2 = jugador2Select.value;
+            const tacadas = parseInt(document.getElementById('tacadas').value);
+            const carambolas1 = parseInt(document.getElementById('carambolas1').value);
+            const carambolas2 = parseInt(document.getElementById('carambolas2').value);
+            const tacadaMax1 = parseInt(document.getElementById('tacadaMax1').value);
+            const tacadaMax2 = parseInt(document.getElementById('tacadaMax2').value);
+            const fecha = document.getElementById('fechaPartida').value;
+
+            if (idJugador1 === idJugador2) {
+                mostrarMensaje(partidaStatus, 'Los jugadores deben ser diferentes.', 'error');
+                return;
+            }
+
+            if (carambolas1 === carambolas2) {
+                mostrarMensaje(partidaStatus, 'El marcador no puede ser un empate.', 'error');
+                return;
+            }
+
+            if (tacadaMax1 > carambolas1) {
+                mostrarMensaje(partidaStatus, 'La tacada máxima no puede ser mayor que las carambolas totales del jugador 1.', 'error');
+                return;
+            }
+
+            if (tacadaMax2 > carambolas2) {
+                mostrarMensaje(partidaStatus, 'La tacada máxima no puede ser mayor que las carambolas totales del jugador 2.', 'error');
+                return;
+            }
+
+            try {
+                const partidaData = {
+                    jugador1_id: idJugador1,
+                    jugador2_id: idJugador2,
+                    carambolas_jugador1: carambolas1,
+                    carambolas_jugador2: carambolas2,
+                    tacadas: tacadas,
+                    tacada_maxima_jugador1: tacadaMax1,
+                    tacada_maxima_jugador2: tacadaMax2,
+                    fecha: fecha
+                };
+                
+                await apiCall('partidas.php', 'POST', partidaData);
+                mostrarMensaje(partidaStatus, 'Partida registrada correctamente.', 'success');
+                
+                formPartida.reset();
+                
+                // Recargar estadísticas
+                await cargarEstadisticas();
+                
+                // Si estamos viendo un perfil, actualizarlo
+                if (perfilJugadorContainer.style.display === 'block') {
+                    const jugadorId = selectJugadorPerfil.value;
+                    await verPerfil(jugadorId);
+                }
+                
+                // Si estamos viendo un head to head, actualizarlo
+                if (h2hResult.style.display === 'block') {
+                    await cargarHeadToHead();
+                }
+            } catch (error) {
+                mostrarMensaje(partidaStatus, 'Error al registrar partida: ' + error.message, 'error');
+            }
+        });
+
+        // Función para cargar la tabla de top jugadores y el gráfico
+        async function cargarEstadisticas() {
+            try {
+                const estadisticas = await apiCall('estadisticas.php');
+                jugadores = estadisticas.jugadores;
+                partidas = estadisticas.partidas;
+                
+                // Llenar tabla del top
+                tablaTop.innerHTML = '';
+                
+                if (jugadores.length === 0) {
+                    tablaTop.innerHTML = '<tr><td colspan="8">No hay datos estadísticos disponibles</td></tr>';
+                    return;
+                }
+                
+                jugadores.forEach((jugador, index) => {
+                    const tr = document.createElement('tr');
+                    const nivel = determinarNivel(jugador.elo || 1500);
+                    
+                    tr.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${jugador.nombre} ${jugador.apellido}</td>
+                        <td>${jugador.partidas_ganadas}</td>
+                        <td>${jugador.partidas_perdidas}</td>
+                        <td>${jugador.promedio.toFixed(2)}</td>
+                        <td class="elo-rating">${jugador.elo || 1500}</td>
+                        <td><span class="nivel-badge nivel-${nivel.nivel}">${nivel.texto}</span></td>
+                        <td>${jugador.mejor_tacada}</td>
+                    `;
+                    tablaTop.appendChild(tr);
+                });
+                
+                // Actualizar el gráfico
+                const ctx = document.getElementById('promedioChart').getContext('2d');
+                if (chartInstance) {
+                    chartInstance.destroy();
+                }
+                
+                chartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: jugadores.slice(0, 10).map(j => `${j.nombre} ${j.apellido}`),
+                        datasets: [{
+                            label: 'Promedio de Carambolas por Tacada',
+                            data: jugadores.slice(0, 10).map(j => j.promedio.toFixed(2)),
+                            backgroundColor: [
+                                '#E74C3C', '#F1C40F', '#27AE60', '#3498DB', '#9B59B6', '#34495E',
+                                '#1ABC9C', '#2ECC71', '#F1C40F', '#E67E22'
+                            ],
+                            borderColor: '#fff',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Promedio (carambolas/tacada)'
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error al cargar estadísticas:', error);
+                tablaTop.innerHTML = '<tr><td colspan="8" class="status-error">Error al cargar las estadísticas</td></tr>';
+            }
+        }
+
+        // Función para mostrar el perfil de un jugador
+        async function verPerfil(jugadorId) {
+            try {
+                const perfil = await apiCall(`perfil.php?id=${jugadorId}`);
+                
+                perfilJugadorContainer.style.display = 'block';
+
+                // Determinar nivel basado en ELO
+                const nivel = determinarNivel(perfil.jugador.elo || 1500);
+                
+                // Llenar datos del encabezado
+                document.getElementById('perfil-nombre').textContent = `${perfil.jugador.nombre} ${perfil.jugador.apellido}`;
+                const nivelBadge = document.getElementById('perfil-nivel');
+                nivelBadge.textContent = nivel.texto;
+                nivelBadge.className = `nivel-badge nivel-${nivel.nivel}`;
+                document.getElementById('perfil-elo').textContent = `ELO: ${perfil.jugador.elo || 1500}`;
+                
+                // Actualizar barra de progreso de ELO
+                const progreso = calcularProgresoELO(perfil.jugador.elo || 1500);
+                document.getElementById('elo-progress-bar').style.width = `${progreso}%`;
+
+                // Llenar estadísticas principales
+                document.getElementById('perfil-ganadas').textContent = perfil.jugador.partidas_ganadas;
+                document.getElementById('perfil-promedio').textContent = perfil.jugador.promedio.toFixed(2);
+                document.getElementById('perfil-mejor-tacada').textContent = perfil.jugador.mejor_tacada;
+
+                // Llenar historial de partidas
+                tablaHistorialPartidas.innerHTML = '';
+                
+                if (perfil.historial.length === 0) {
+                    tablaHistorialPartidas.innerHTML = '<tr><td colspan="7">No hay partidas registradas</td></tr>';
+                    return;
+                }
+                
+                perfil.historial.forEach(partida => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${partida.fecha}</td>
+                        <td>${partida.oponente}</td>
+                        <td>${partida.resultado === 'ganó' ? '<span style="color: green; font-weight: bold;">Ganó</span>' : '<span style="color: red; font-weight: bold;">Perdió</span>'}</td>
+                        <td>${partida.carambolas_jugador} - ${partida.carambolas_oponente}</td>
+                        <td>${partida.tacadas}</td>
+                        <td>${partida.tacada_maxima}</td>
+                        <td>${partida.cambio_elo > 0 ? '+' : ''}${partida.cambio_elo}</td>
+                    `;
+                    tablaHistorialPartidas.appendChild(tr);
+                });
+            } catch (error) {
+                console.error('Error al cargar perfil:', error);
+                tablaHistorialPartidas.innerHTML = '<tr><td colspan="7" class="status-error">Error al cargar el historial</td></tr>';
+            }
+        }
+
+        // Escuchar cambios en el select de perfil
+        selectJugadorPerfil.addEventListener('change', (e) => {
+            const jugadorId = e.target.value;
+            if (jugadorId) {
+                verPerfil(jugadorId);
+            } else {
+                perfilJugadorContainer.style.display = 'none';
+            }
+        });
+
+        // Función para mostrar mensajes de estado
+        function mostrarMensaje(elemento, mensaje, tipo) {
+            elemento.textContent = mensaje;
+            elemento.className = `status-message status-${tipo}`;
+            elemento.style.display = 'block';
+            
+            // Ocultar el mensaje después de 5 segundos
+            setTimeout(() => {
+                elemento.style.display = 'none';
+            }, 5000);
+        }
+
+        // Funciones auxiliares
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        function editarJugador(id) {
+            alert(`La edición para el jugador ${id} se implementará próximamente.`);
+        }
+        
+        async function eliminarJugador(id) {
+            if (!confirm('¿Está seguro de que desea eliminar este jugador?')) {
+                return;
+            }
+            
+            try {
+                await apiCall(`jugadores.php?id=${id}`, 'DELETE');
+                mostrarMensaje(jugadorStatus, 'Jugador eliminado correctamente.', 'success');
+                
+                // Recargar datos
+                jugadores = await apiCall('jugadores.php');
+                cargarJugadores();
+                cargarSelectJugadores();
+                cargarH2HSelects();
+                await cargarEstadisticas();
+                
+                // Ocultar el perfil si se eliminó el jugador actual
+                if (selectJugadorPerfil.value == id) {
+                    perfilJugadorContainer.style.display = 'none';
+                    selectJugadorPerfil.value = '';
+                }
+                
+                // Ocultar el head to head si se eliminó alguno de los jugadores
+                if (h2hJugador1Select.value == id || h2hJugador2Select.value == id) {
+                    h2hResult.style.display = 'none';
+                    h2hJugador1Select.value = '';
+                    h2hJugador2Select.value = '';
+                }
+            } catch (error) {
+                mostrarMensaje(jugadorStatus, 'Error al eliminar jugador: ' + error.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
